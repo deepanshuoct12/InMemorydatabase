@@ -69,7 +69,7 @@ readInput.on('line',(input)=>{
 
   }
 
-  db.manageState();
+  db.manageState();//for transaction mode 
 
 })
 
