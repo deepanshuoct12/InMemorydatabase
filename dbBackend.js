@@ -24,17 +24,15 @@ module.exports = class myDB{
     {
       let count=0;
       
-       if(value)
-       {
-           for(let property in this.data[this.tindex])
-           {
-               if(this.data[this.tindex].hasOwnProperty(property)) //chk if object has property or not
-               {
-                   if(property && (this.data[this.tindex][property]===value))
-                   count++;
-               }
-           }
-       }
+      if (value) {
+        for (let property in this.data[this.tindex]) {
+            if (this.data[this.tindex].hasOwnProperty(property)) {
+                if (property && (this.data[this.tindex][property] === value)) {
+                    count++;
+                }
+            }
+        }
+    }
           
        return count;
     };
@@ -100,7 +98,71 @@ module.exports = class myDB{
         this.data[this.tindex+1]=clone(this.data[this.tindex]);
         this.tindex++;
     };
+    /* {@function} commit - Commit all of the open transactions. Turns on auto-commit
+    */
+     this.commit = function()
+     {
+         if(this.tindex === 0)
+         {
+             this.transactionMode=false;
+         }
 
+         if(this.tindex>0)
+         {
+            	// Sync Data from transaction
+	    	this.data[this.tIndex-1] = clone(this.data[this.tIndex]);
+	    	// Clear out the transaction data
+	    	this.data[this.tIndex] = {};
+	    	// Point to earlier version of data
+            this.tIndex--;
+         }
+         return this.tindex;
+     }
 
+      
+    /* {@function} download - Downloads the content of DB into db_dump.txt
+    * @return {Number} the new transaction index
+    */
+       
+    this.download = function ()
+    {
+      var db_dump;
+      this.data.forEach((entry)=>{
+        db_dump = JSON.stringify(entry);
+      });
+
+      fs.writeFileSync('database.json',db_dump);
+      console.log("--------------Saving DB to db_dump.json -----------")
+    }
+     /* {@function} rollback - Rolls back the most recent transaction.
+    * @return {Number} the new transaction index
+    */
+
+      this.rollback = function()
+      {
+          if(this.tindex==0)
+          {
+              return -1;
+          }
+
+          if(this.transactionMode){
+              this.data[this.tindex]={};
+              this.tindex--;
+          }
+
+          return this.tindex;
+      }
+
+      /* {@function} manageState - Auxilary function to manage state between
+    * transactionMode(auto-commit-off) and regular(auto-commit-on) mode
+    */
+      this.manageState = function()
+      {
+         if(!this.transactionMode)
+         {
+             this.data[0]=clone(this.data[this.tindex]);
+         }
+      }
+     
     }
 };

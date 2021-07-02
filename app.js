@@ -1,24 +1,24 @@
 const path = require('path')
 const readline = require('readline')
-//const dbBackend = require('./dbBackend')
+const dbBackend = require('./dbBackend')
 
-const rl= readline.createInterface({
+const readInput= readline.createInterface({
  input: process.stdin,
  output : process.stdout,
  terminal:false
 });
 
- //let db = new dbBackend();
+ let db = new dbBackend();
  console.log("<--------------------Inmemory database ready--------------------->");
 
 
 readInput.on('line',(input)=>{
-  let cmd = input.splice(' ');
-  cmd[0]=cmd[0].toUppercase();
+  let cmd = input.split(' ');
+  cmd[0]=cmd[0].toUpperCase();
   let key;
   let value;
 
-  if(cmd.length()>1)
+  if(cmd.length>1)
   {
       key=cmd[1]||null;
       value=cmd[2]||null;
@@ -51,7 +51,7 @@ readInput.on('line',(input)=>{
      transactionIndex = db.commit();
      if(transactionIndex==-1)console.log("No transaction found")
      else 
-     console.log("Transaction commited with transaction id" + transactionIndex);
+     console.log("Transaction commited with transaction id " + transactionIndex);
       break;
       case 'DOWNLOAD':
           db.download(); //downloading json
